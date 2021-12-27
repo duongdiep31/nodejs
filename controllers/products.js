@@ -12,7 +12,7 @@ export const list = async (req, res, next) => {
         }
         const skipNumber = (perPage - 1) * current
         try {
-            await Product.find({}).populate('cateId').skip(skipNumber).limit(current).sort({ craeteAt: -1 }).exec((err, doc) => {
+            await Product.find({}).populate('cateId').skip(skipNumber).limit(current).sort({ 'createdAt': -1 }).exec((err, doc) => {
                 if (err) {
                     res.json(err)
                 } else {
@@ -131,4 +131,16 @@ export const search = async (req, res) => {
         console.log(error);
         res.status(400).json(error)
     }
+}
+export const trending = async (req, res) => {
+        
+    const trending = await Product.find({
+        "trending": {$gt: 0}
+    })
+    .limit(12).sort({
+        'trending': -1
+    })
+    res.json(trending)
+
+
 }
