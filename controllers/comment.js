@@ -1,17 +1,5 @@
-import order from "../models/order"
-
-export const createOrder = async (req, res) => {
-    try {
-        const addorder = await new order(req.body).save()
-        res.status(200).json(addorder)
-    } catch (error) {
-        res.status(400).json({
-            err: "failed"
-        })
-    }
-
-}
-export const listOrder = async (req, res, next) => {
+import comment from "../models/comment"
+export const listComment = async ( req, res) => {
     const { page, limit } = req.query
     if (page && limit) {
         //getPage
@@ -23,11 +11,11 @@ export const listOrder = async (req, res, next) => {
         }
         const skipNumber = (perPage - 1) * current
         try {
-            await order.find({}).skip(skipNumber).limit(current).sort({ 'createdAt': -1 }).exec((err, doc) => {
+            await comment.find({}).populate('cateId').skip(skipNumber).limit(current).sort({ 'createdAt': -1 }).exec((err, doc) => {
                 if (err) {
                     res.json(err)
                 } else {
-                    order.countDocuments({}).exec((count_error, count) => {
+                    comment.countDocuments({}).exec((count_error, count) => {
                         if (err) {
                             return res.json(count_error);
                         }
@@ -45,11 +33,11 @@ export const listOrder = async (req, res, next) => {
     } else {
         //getall
         try {
-            const list = await order.find().sort({ craeteAt: -1 }).exec((err, doc) => {
+            const list = await comment.find().populate('cateId').sort({ craeteAt: -1 }).exec((err, doc) => {
                 if (err) {
                     res.status(400).json(err)
                 } else {
-                    order.countDocuments({}).exec((count_err, count) => {
+                    comment.countDocuments({}).exec((count_err, count) => {
                         if (count_err) {
                             return res.status(400).json(count_err)
                         } else {
@@ -65,37 +53,32 @@ export const listOrder = async (req, res, next) => {
             res.status(400).json('failed')
         }
     }
-
 }
-export const removeOrder = async(req, res) => {
+export const createComment = async (req, res) => {
     try {
-    const remove = await order.findByIdAndDelete({_id: req.params._id})
-        res.status(200).json(remove)
+    const comments = await new comment(req.body).save()
+        res.json(comments)
     } catch (error) {
-        res.status(400).json({
-            err: 'remove failed'
-        })
+        res.status(400).json(error)
     }
+    
 }
-export const updateOrder = async(req, res) => {
-    console.log('params', req.params);
-    console.log('body', req.body);
-    try {
-        const update = await order.findOneAndUpdate(req.params, req.body, {new :true})
-      return  res.status(200).json(update)
-    } catch (error) {
-       return res.status(400).json({
-            err: "failed"
-        })
-    }
-}
-export const orderByid = async (req, res, next, id) => {
-    const detail = await order.findById(id).exec()
-    req.order = detail
-    next()
 
+export const editComment = async (req, res) => {
+    try {
+    const comments = await  comment(req.params,req.body,{new:true})
+        res.json(comments)
+    } catch (error) {
+        res.status(400).json(error)
+    }
+    
 }
-export const detailOrder = async (req, res ) => {
-    const data = req.order
-    res.json(data)
+export const deleteComment = async (req, res) => {
+    try {
+    const comments = await comment.findByIdAndDelete(req.params)
+        res.json(comments)
+    } catch (error) {
+        res.status(400).json(error)
+    }
+    
 }

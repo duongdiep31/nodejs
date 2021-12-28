@@ -39,12 +39,9 @@ userSchema.virtual('password')
 
 userSchema.methods = {
     authenticate(password) {
-        console.log('passwordAuth', password);
-        console.log('hash', this.hashed_password);
         return this.encrytPassword(password) == this.hashed_password;
     },
     encrytPassword(password) {
-        console.log('passwordEncry', password);
         if (!password) return;
         try {
             return createHmac('sha256', this.salt).update(password).digest('hex');

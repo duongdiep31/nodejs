@@ -2,13 +2,11 @@ import jwt from "jsonwebtoken";
 import expressJwt from 'express-jwt'
 import user from "../models/user";
 export const signup = async (req, res) => {
-    console.log(req.body)
     try {
         const { email, name, phone, password } = req.body;
         const users = await new user({ email, name, phone, password }).save()
         res.json(users)
     } catch (error) {
-        console.log(error);
         res.status(400).json({
             message: "failed"
         })
@@ -30,7 +28,7 @@ export const signin = async (req, res) => {
         })
     }
     else {
-        const token = jwt.sign({ _id: user._id }, '123456'); // encode: 
+        const token = jwt.sign({ _id: user._id }, 'securityJwt'); // encode: 
         res.cookie('token', token, { expire: new Date() + 9999 });
         res.json({
             token,
@@ -51,11 +49,12 @@ export const signout = (req, res) => {
     })
 }
 export const requireSignin = expressJwt({ // decode
-    secret: '123456',
+    secret: 'securityJwt',
     algorithms: ["HS256"],
     userProperty: "auth" // req.auth
 });
 export const isAuth = (req, res, next) => {
+    
     let user = req.profile && req.auth && req.profile._id == req.auth._id;
     if (!user) {
         res.json({
@@ -65,7 +64,24 @@ export const isAuth = (req, res, next) => {
     next();
 }
 export const isAdmin = (req, res, next) => {
-    if (req.profile.role === 0) {
+    if (req.auth.role === 0 || req.auth.role === 2) {
+        return res.status(403).json({
+            msg: "Bạn không có quyền truy cập"
+        })
+    }
+    next();
+}
+export const isContent = (req, res, next) => {
+    console.log('content',req);
+    if (req.auth.role === 3 || req.auth.role === 0  ) {
+        return res.status(403).json({
+            msg: "Bạn không có quyền truy cập"
+        })
+    }
+    next();
+}
+export const isCart = (req, res, next) => {
+    if (req.auth.role === 4|| req.auth.role ===0  ) {
         return res.status(403).json({
             msg: "Bạn không có quyền truy cập"
         })

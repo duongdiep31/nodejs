@@ -15,7 +15,6 @@ export const listWish = async (req, res) => {
         const list = await wishlistModel.find().populate('idBook').populate('idUser').sort({ createAt: -1 }).exec()
         res.json(list)
     } catch (error) {
-        console.log(error);
         res.status(400).json({
             err: 'get Wish List failed'
         })

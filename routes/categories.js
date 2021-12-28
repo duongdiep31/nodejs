@@ -1,16 +1,13 @@
 import express from 'express'
-import { isAdmin, isAuth, requireSignin } from '../controllers/auth';
+import {  isAuth, isContent, requireSignin } from '../controllers/auth';
 const router = express.Router();
-import { create, list,patch, remove, removecate, slug } from '../controllers/category';
+import { cateById, create, list,patch, removecate, slug } from '../controllers/category';
 
 
 router.get('/categories', list)
-// router.post('/category/:userId', requireSignin,isAdmin, isAuth , create)
-router.post('/addCategories',create)
-router.get('/categories/:_id',slug)
-router.patch('/categories/:_id',patch)
-router.delete('/categories/:_id',removecate)
-
-
-
+router.post('/addCategories',requireSignin,isContent , create)
+router.get('/categories/:_id', slug)
+router.patch('/categories/:_id',requireSignin,isContent, patch)
+router.delete('/categories/:_id',requireSignin,isContent,removecate)
+router.param('_id', cateById)
 module.exports = router

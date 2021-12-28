@@ -12,7 +12,6 @@ export const listCart = async (req, res) => {
             const listCart = await cartModel.find().populate('idBook').populate('idUser').sort({createAt: -1}).exec()
             res.json(listCart)
     } catch (error) {
-            console.log(error);
             res.status(400).json({
                 err: 'get Cart failed'
             })

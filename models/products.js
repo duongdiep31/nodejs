@@ -42,6 +42,12 @@ const productSchema = new mongoose.Schema({
     trending: {
         type: Number,
         default: 0
-    }
+    },
+    comment: [
+        {
+            type: ObjectId,
+            ref: 'Comment'
+        }
+    ]
 },{timestamps: true});
 export default mongoose.model('Product',productSchema)

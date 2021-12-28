@@ -23,7 +23,6 @@ export const listUser = async (req, res, next) => {
         const skipNumber = (perPage - 1) * current
         try {
             await user.find({}).skip(skipNumber).limit(current).sort({ craeteAt: -1 }).exec((err, doc) => {
-                console.log(doc);
                 if (err) {
                     res.json(err)
                 } else {

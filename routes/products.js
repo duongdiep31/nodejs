@@ -1,12 +1,13 @@
 import express from 'express'
+import { isAuth, isContent, requireSignin } from '../controllers/auth';
 import { create, list, listRelated, patch, read, remove, search, trending } from '../controllers/products';
 import products from '../models/products';
 const router = express.Router();
 router.get('/book/list', list)
 router.get('/book/detail/:_id',read)
-router.post('/book/create', create)
-router.patch('/book/update/:_id',patch)
-router.delete('/book/remove/:_id', remove)
+router.post('/book/create',requireSignin,isContent, create)
+router.patch('/book/update/:_id',requireSignin, patch)
+router.delete('/book/remove/:_id',requireSignin,isContent, remove)
 router.post('/generate-fake-data',() =>{
     for (let i = 0; i <= 50; i++) {
         products.create({
@@ -18,8 +19,8 @@ router.post('/generate-fake-data',() =>{
             status: "Còn Hàng",
             author: "Ngô thừa ân",
             discount: 20,
-            quantity: 4,
-            trending: 1 +i
+            quantity: 4
+       
         })
     }
 })
