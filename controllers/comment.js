@@ -11,7 +11,7 @@ export const listComment = async ( req, res) => {
         }
         const skipNumber = (perPage - 1) * current
         try {
-            await comment.find({}).populate('cateId').skip(skipNumber).limit(current).sort({ 'createdAt': -1 }).exec((err, doc) => {
+            await comment.find({}).populate('user').populate('productId').skip(skipNumber).limit(current).sort({ 'status': 1 }  ).exec((err, doc) => {
                 if (err) {
                     res.json(err)
                 } else {
@@ -33,7 +33,7 @@ export const listComment = async ( req, res) => {
     } else {
         //getall
         try {
-            const list = await comment.find().populate('cateId').sort({ craeteAt: -1 }).exec((err, doc) => {
+            const list = await comment.find().populate('user').populate('productId').sort({ craeteAt: -1 }).exec((err, doc) => {
                 if (err) {
                     res.status(400).json(err)
                 } else {
@@ -66,9 +66,10 @@ export const createComment = async (req, res) => {
 
 export const editComment = async (req, res) => {
     try {
-    const comments = await  comment(req.params,req.body,{new:true})
+    const comments = await comment.findOneAndUpdate(req.params,req.body,{new:true})
         res.json(comments)
     } catch (error) {
+        console.log(error);
         res.status(400).json(error)
     }
     
@@ -81,4 +82,8 @@ export const deleteComment = async (req, res) => {
         res.status(400).json(error)
     }
     
+}
+export const commentDetail = async (req, res) => {
+    const cmt = await comment.findById(req.params).populate('user').populate('productId').exec()
+        res.json(cmt)
 }
