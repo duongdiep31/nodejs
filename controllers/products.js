@@ -150,3 +150,67 @@ export const trending = async (req, res) => {
 
 
 }
+export const prdCategory = async (req, res) => {
+    const { page, limit } = req.query
+    if (page && limit) {
+        //getPage
+        let perPage = parseInt(page)
+        let current = parseInt(limit)
+        if (perPage < 1 || perPage == undefined || current == undefined) {
+            perPage = 1
+            current = 9
+        }
+        const skipNumber = (perPage - 1) * current
+        try {
+            await Product.find({'cateId': {$eq: req.params}}).populate('cateId').skip(skipNumber).limit(current).sort({ 'createdAt': -1 }).exec( (err, doc) => {
+                if (err) {
+                    res.status(400).json(err)
+                } else {
+                    Product.countDocuments({'cateId': {$eq: req.params}}).exec((count_error, count) => {
+                        if (err) {
+                             res.json(count_error);
+                             return
+                        }else{
+                         res.status(200).json({
+                            total: count,
+                            list: doc
+                        })
+                        return
+                    }
+                    })
+                }
+
+            })
+        } catch (error) {
+            res.status(400).json(error)
+            return
+        }
+    } else {
+        //getall
+        try {
+          await Product.find({'cateId': {$eq: req.params}}).populate('cateId').sort({ craeteAt: -1 }).exec((err, doc) => {
+                if (err) {
+                    res.status(400).json(err)
+                    return
+                } else {
+                    Product.countDocuments({'cateId': {$eq: req.params}}).exec((count_err, count) => {
+                        if (count_err) {
+                             res.status(400).json(count_err)
+                             return
+                        } else {
+                             res.json({
+                                total: count,
+                                list: doc
+                            })
+                            return
+                        }
+                    })
+                    return
+                }
+            })
+        } catch (error) {
+            res.status(400).json('failed')
+            return
+        }
+    }
+}
