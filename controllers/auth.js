@@ -5,18 +5,21 @@ export const signup = async (req, res) => {
     try {
         const { email, name, phone, password } = req.body;
         const users = await new user({ email, name, phone, password }).save()
-        res.json(users)
+        res.json({
+            user: users,
+            msg: " Đăng kí thành công"
+        })
     } catch (error) {
         res.status(400).json({
-            message: "failed"
+            msg: "Tài khoản đã tồn tại"
         })
     }
-
 }
 
 export const signin = async (req, res) => {
     const { email, password } = req.body;
     const users = await user.findOne({ email }).exec();
+
     if (!users) {
         return res.status(400).json({
             msg: "Tài khoản không tồn tại"
@@ -38,7 +41,8 @@ export const signin = async (req, res) => {
                 email: users.email,
                 phone: users.phone,
                 role: users.role
-            }
+            },
+            msg: "Đăng nhập thành công"
         });
     }
 }
@@ -72,7 +76,6 @@ export const isAdmin = (req, res, next) => {
     next();
 }
 export const isContent = (req, res, next) => {
-    console.log('content',req);
     if (req.auth.role === 3 || req.auth.role === 0  ) {
         return res.status(403).json({
             msg: "Bạn không có quyền truy cập"

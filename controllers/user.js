@@ -52,6 +52,7 @@ export const listUser = async (req, res, next) => {
                         if (err) {
                             return res.json(count_error);
                         }
+
                         return res.json({
                             total: count,
                             list: doc

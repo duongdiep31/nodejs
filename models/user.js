@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         trim: true,
         required: true,
-        unique: 32
+        unique: 32  
     },
     hashed_password: {
         type: String,
@@ -24,8 +24,8 @@ const userSchema = new mongoose.Schema({
     }
     ,
     role: {
-        type: Number,
-        default: 1
+        type: String,
+        default: 'user'
     },
     salt: {
         type: String

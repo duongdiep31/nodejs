@@ -1,5 +1,5 @@
-import slugify from "slugify";
-import Product from "../models/products";
+import Area from '../models/area'
+import people from '../models/people'
 export const list = async (req, res, next) => {
     const { page, limit } = req.query
     if (page && limit) {
@@ -12,11 +12,11 @@ export const list = async (req, res, next) => {
         }
         const skipNumber = (perPage - 1) * current
         try {
-            await Product.find({}).skip(skipNumber).limit(current).sort({ 'createdAt': -1 }).exec( (err, doc) => {
+            await Area.find({}).populate('idProject').skip(skipNumber).limit(current).sort({ 'createdAt': -1 }).exec( (err, doc) => {
                 if (err) {
                     res.status(400).json(err)
                 } else {
-                    Product.countDocuments({}).exec((count_error, count) => {
+                    Area.countDocuments({}).exec((count_error, count) => {
                         if (err) {
                              res.json(count_error);
                              return
@@ -38,12 +38,12 @@ export const list = async (req, res, next) => {
     } else {
         //getall
         try {
-          await Product.find().sort({ craeteAt: -1 }).exec((err, doc) => {
+          await Area.find().populate('idProject').sort({ craeteAt: -1 }).exec((err, doc) => {
                 if (err) {
                     res.status(400).json(err)
                     return
                 } else {
-                    Product.countDocuments({}).exec((count_err, count) => {
+                    Area.countDocuments({}).exec((count_err, count) => {
                         if (count_err) {
                              res.status(400).json(count_err)
                              return
@@ -65,27 +65,22 @@ export const list = async (req, res, next) => {
     }
 
 }
-export const read = async (req, res) => {
-    const product = await Product.findById({ _id: req.params._id }).exec();
-    res.json(product)
-}
 export const create = async (req, res) => {
-    req.body.slug = slugify(req.body.name);
     try {
-        const product = await new Product(req.body).save();
-        res.json(product)
+        const area = await new Area(req.body).save();
+        res.json(area)
         return
     } catch (error) {
         res.status(400).json({
-            error: "Create product failed"
+            error: "Create Area failed"
         })
         return
     }
 }
 export const remove = async (req, res) => {
     try {
-        const product = await Product.findByIdAndDelete({ _id: req.params._id })
-        res.json(product)
+        const area = await Area.findByIdAndDelete({ _id: req.params._id })
+        res.json(area)
     } catch (error) {
         res.status(400).json({
             error: error
@@ -94,47 +89,11 @@ export const remove = async (req, res) => {
 }
 export const patch = async (req, res) => {
     try {
-        const product = await Product.findOneAndUpdate(req.params, req.body , { new: true })
-            return  res.status(200).json(product)
+        const area = await Area.findOneAndUpdate(req.params, req.body , { new: true })
+            return  res.status(200).json(area)
     } catch (error) {
        return res.status(400).json({
             error: "Create product failed"
         })
-
-    }
-}
-export const listRelated = async (req, res) => {
-    const product = await Product.findById(req.params._id).exec();
-    const related = await Product.find({
-        _id: { $ne: product._id },
-        category: product.category
-    })
-        .limit(4)
-        .populate('cateId')
-        .exec();
-    res.json(related);
-}
-export const search = async (req, res) => {
-    const query = req.query.name
-    const { page, limit } = req.query
-    let perPage = parseInt(page)
-    let current = parseInt(limit)
-    if (perPage < 1 || perPage == undefined || current == undefined || query == undefined) {
-        perPage = 1
-        current = 9
-    }
-    const skipNumber = (perPage - 1) * current
-    try {
-        const listSearch = await Product.find({ name: new RegExp(query, 'i') }).populate('cateId')
-            .skip(skipNumber)
-            .limit(current).sort({ createAt: -1 })
-        const countSearch = await Product.find({ name: new RegExp(query, 'i') }).populate('cateId')
-        const count = countSearch.length
-        return res.json({
-            list: listSearch,
-            total: count
-        })
-    } catch (error) {
-        res.status(400).json(error)
     }
 }
